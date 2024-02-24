@@ -27,7 +27,7 @@ jobs:
         # 使用action库  actions/setup-node安装node
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
+          node-version: '20.x'
 
       # 安装依赖
       - name: 安装依赖
