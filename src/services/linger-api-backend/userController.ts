@@ -35,7 +35,7 @@ export async function getUserByIdUsingGet(
   params: API.getUserByIdUsingGETParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseUserVO>('/api/user/get', {
+  return request<API.BaseResponseUser>('/api/user/get', {
     method: 'GET',
     params: {
       ...params,
@@ -46,19 +46,19 @@ export async function getUserByIdUsingGet(
 
 /** getLoginUser GET /api/user/get/login */
 export async function getLoginUserUsingGet(options?: { [key: string]: any }) {
-  return request<API.BaseResponseUserVO>('/api/user/get/login', {
+  return request<API.BaseResponseLoginUserVO>('/api/user/get/login', {
     method: 'GET',
     ...(options || {}),
   });
 }
 
-/** listUser GET /api/user/list */
-export async function listUserUsingGet(
+/** getUserVOById GET /api/user/get/vo */
+export async function getUserVoByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.listUserUsingGETParams,
+  params: API.getUserVOByIdUsingGETParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseListUserVO>('/api/user/list', {
+  return request<API.BaseResponseUserVO>('/api/user/get/vo', {
     method: 'GET',
     params: {
       ...params,
@@ -67,17 +67,32 @@ export async function listUserUsingGet(
   });
 }
 
-/** listUserByPage GET /api/user/list/page */
-export async function listUserByPageUsingGet(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.listUserByPageUsingGETParams,
+/** listUserByPage POST /api/user/list/page */
+export async function listUserByPageUsingPost(
+  body: API.UserQueryRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponsePageUserVO>('/api/user/list/page', {
-    method: 'GET',
-    params: {
-      ...params,
+  return request<API.BaseResponsePageUser>('/api/user/list/page', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** listUserVOByPage POST /api/user/list/page/vo */
+export async function listUserVoByPageUsingPost(
+  body: API.UserQueryRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponsePageUserVO>('/api/user/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   });
 }
@@ -87,7 +102,7 @@ export async function userLoginUsingPost(
   body: API.UserLoginRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseUser>('/api/user/login', {
+  return request<API.BaseResponseLoginUserVO>('/api/user/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -126,6 +141,36 @@ export async function updateUserUsingPost(
   options?: { [key: string]: any },
 ) {
   return request<API.BaseResponseboolean>('/api/user/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** updateMyUser POST /api/user/update/my */
+export async function updateMyUserUsingPost(
+  body: API.UserUpdateMyRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseboolean>('/api/user/update/my', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** updateSecretKey POST /api/user/update/secret_key */
+export async function updateSecretKeyUsingPost(
+  body: API.IdRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseboolean>('/api/user/update/secret_key', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

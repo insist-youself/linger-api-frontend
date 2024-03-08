@@ -32,13 +32,13 @@ export async function deleteUserInterfaceInfoUsingPost(
   });
 }
 
-/** getUserInterfaceInfoById GET /api/userinterfaceinfo/get */
+/** getUserInterfaceInfoById GET /api/userinterfaceinfo/get/vo */
 export async function getUserInterfaceInfoByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getUserInterfaceInfoByIdUsingGETParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseUserInterfaceInfo>('/api/userinterfaceinfo/get', {
+  return request<API.BaseResponseUserInterfaceInfo>('/api/userinterfaceinfo/get/vo', {
     method: 'GET',
     params: {
       ...params,
@@ -62,17 +62,17 @@ export async function listUserInterfaceInfoUsingGet(
   });
 }
 
-/** listUserInterfaceInfoByPage GET /api/userinterfaceinfo/list/page */
-export async function listUserInterfaceInfoByPageUsingGet(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.listUserInterfaceInfoByPageUsingGETParams,
+/** listUserInterfaceInfoVOByPage POST /api/userinterfaceinfo/list/page/vo */
+export async function listUserInterfaceInfoVoByPageUsingPost(
+  body: API.UserInterfaceInfoQueryRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponsePageUserInterfaceInfo>('/api/userinterfaceinfo/list/page', {
-    method: 'GET',
-    params: {
-      ...params,
+  return request<API.BaseResponsePageUserInterfaceInfo>('/api/userinterfaceinfo/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
+    data: body,
     ...(options || {}),
   });
 }
