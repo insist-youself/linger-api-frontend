@@ -39,3 +39,7 @@ screenshot
 .eslintcache
 
 build
+
+# url配置相关文件
+/src/pages/User/Profile/index.tsx
+/src/requestConfig.ts
