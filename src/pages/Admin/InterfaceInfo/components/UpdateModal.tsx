@@ -1,53 +1,178 @@
-import type { ProColumns, ProFormInstance } from '@ant-design/pro-components';
-import { ProTable } from '@ant-design/pro-components';
+import { DrawerForm, ProColumns, ProFormInstance, ProFormText } from '@ant-design/pro-components';
+import { EditableProTable } from '@ant-design/pro-table';
 import '@umijs/max';
-import { Modal } from 'antd';
-import React, { useEffect, useRef } from 'react';
+import { Form, Input } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 
-// 定义组件的属性类型
+export type FormValueType = {
+  target?: string;
+  template?: string;
+  type?: string;
+  time?: string;
+  frequency?: string;
+} & Partial<API.RuleListItem>;
+
 export type Props = {
-  // 表单中需要编辑的数据
-  values: API.InterfaceInfo;
-  // 表格的列定义
-  columns: ProColumns<API.InterfaceInfo>[];
-  // 当用户点击取消按钮时触发
-  onCancel: () => void;
-  // 当用户提交表单时,将用户输入的数据作为参数传递给后台
-  onSubmit: (values: API.InterfaceInfo) => Promise<void>;
-  // 控制模态框是否可见
+  values: API.InterfaceInfoVO;
+  columns: ProColumns<API.InterfaceInfoVO>[];
+  setVisible: (visible: boolean) => void;
+  onSubmit: (values: API.InterfaceInfoVO) => Promise<void>;
   visible: boolean;
+  requestColumns: ProColumns<API.RequestParamsRemarkVO>[];
+  responseColumns: ProColumns<API.RequestParamsRemarkVO>[];
 };
 
-// 定义更新模态框组件
 const UpdateModal: React.FC<Props> = (props) => {
-  // 从props中获取属性
-  const { values, visible, columns, onCancel, onSubmit } = props;
-
-  // 使用React的useRef创建一个引用，以访问ProTable中的表单实例
+  const { values, visible, setVisible, onSubmit, requestColumns, responseColumns } = props;
   const formRef = useRef<ProFormInstance>();
+  // @ts-ignore
+  const [requestEditableKeys, setRequestEditableKeys] = useState<React.Key[]>(() => {
+    return values.requestParamsRemark?.map((item) => item.id) || [];
+  });
+  const [requestDataSource, setRequestDataSource] = useState<
+    readonly API.RequestParamsRemarkVO[]
+  >(() => values.requestParamsRemark || []);
+  // @ts-ignore
+  const [responseEditableKeys, setResponseEditableKeys] = useState<React.Key[]>(() => {
+    return values.responseParamsRemark?.map((item) => item.id) || [];
+  });
+  const [responseDataSource, setResponseDataSource] = useState<
+    readonly API.ResponseParamsRemarkVO[]
+  >(() => values.responseParamsRemark || []);
 
-  // 防止修改的表单内容一直是同一个内容,要监听values的变化
-  // 使用React的useEffect在值改变时更新表单的值
   useEffect(() => {
     if (formRef) {
+      let requestIds =
+        values.requestParamsRemark?.map((item) => item.id as unknown as string) || [];
+      setRequestEditableKeys(requestIds);
+      setRequestDataSource(values.requestParamsRemark || []);
+
+      let responseIds =
+        values.responseParamsRemark?.map((item) => item.id as unknown as string) || [];
+      setResponseEditableKeys(responseIds);
+      setResponseDataSource(values.responseParamsRemark || []);
       formRef.current?.setFieldsValue(values);
     }
   }, [values]);
 
-  // 返回模态框组件
   return (
-    // 创建一个Modal组件,通过visible属性控制其显示或隐藏,footer设置为null把表单项的'取消'和'确认'按钮去掉
-    <Modal visible={visible} footer={null} onCancel={() => onCancel?.()}>
-      {/* 创建一个ProTable组件,设定它为表单类型,将表单实例绑定到ref,通过columns属性设置表格的列，提交表单时调用onSubmit函数 */}
-      <ProTable
-        type="form"
-        formRef={formRef}
-        columns={columns}
-        onSubmit={async (value) => {
-          onSubmit?.(value);
-        }}
+    <DrawerForm<API.InterfaceInfoVO>
+      onFinish={async (value) => {
+        onSubmit?.(value);
+      }}
+      formRef={formRef}
+      formKey="update-modal-form"
+      autoFocusFirstInput
+      onOpenChange={setVisible}
+      title="修改接口"
+      open={visible}
+    >
+      <ProFormText
+        name="name"
+        label="接口名称"
+        initialValue={values.name}
+        rules={[{ required: true, message: '接口名称不可为空！' }]}
       />
-    </Modal>
+
+      <ProFormText
+        name="description"
+        label="描述"
+        initialValue={values.description}
+        rules={[{ required: true, message: '描述不可为空！' }]}
+      />
+      <ProFormText
+        name="method"
+        label="请求方法"
+        initialValue={values.method}
+        rules={[{ required: true, message: '请求方法不可为空！' }]}
+      />
+
+      <ProFormText
+        name="host"
+        label="主机名"
+        initialValue={values.host}
+        rules={[{ required: true, message: '主机名不可为空！' }]}
+      />
+      <ProFormText
+        name="url"
+        label="接口地址"
+        initialValue={values.url}
+        rules={[{ required: true, message: '接口地址不可为空！' }]}
+      />
+      <Form.Item name="requestParams" label="请求参数示例">
+        <Input.TextArea defaultValue={values.requestParams} />
+      </Form.Item>
+      <Form.Item name="requestParamsRemark" label="请求参数说明">
+        <EditableProTable<API.RequestParamsRemarkVO>
+          rowKey="id"
+          toolBarRender={false}
+          columns={requestColumns}
+          value={requestDataSource}
+          onChange={setRequestDataSource}
+          recordCreatorProps={{
+            newRecordType: 'dataSource',
+            position: 'bottom',
+            record: () => ({
+              id: Date.now(),
+              isRequired: 'no',
+              type: 'string',
+            }),
+          }}
+          editable={{
+            type: 'multiple',
+            editableKeys: requestEditableKeys,
+            onChange: setRequestEditableKeys,
+            actionRender: (row, _, dom) => {
+              return [dom.delete];
+            },
+            onValuesChange: (record, recordList) => {
+              setRequestDataSource(recordList);
+              formRef.current?.setFieldsValue({
+                requestParamsRemark: recordList,
+              });
+            },
+          }}
+        />
+      </Form.Item>
+
+      <Form.Item name="responseParamsRemark" label="响应参数说明">
+        <EditableProTable<API.ResponseParamsRemarkVO>
+          rowKey="id"
+          toolBarRender={false}
+          columns={responseColumns}
+          value={responseDataSource}
+          onChange={setResponseDataSource}
+          recordCreatorProps={{
+            newRecordType: 'dataSource',
+            position: 'bottom',
+            record: () => ({
+              id: Date.now(),
+              type: 'string',
+            }),
+          }}
+          editable={{
+            type: 'multiple',
+            editableKeys: responseEditableKeys,
+            onChange: setResponseEditableKeys,
+            actionRender: (row, _, dom) => {
+              return [dom.delete];
+            },
+            onValuesChange: (record, recordList) => {
+              setResponseDataSource(recordList);
+              formRef.current?.setFieldsValue({
+                responseParamsRemark: recordList,
+              });
+            },
+          }}
+        />
+      </Form.Item>
+      <Form.Item name="requestHeader" label="请求头">
+        <Input.TextArea defaultValue={values.requestHeader} />
+      </Form.Item>
+      <Form.Item name="responseHeader" label="响应头">
+        <Input.TextArea defaultValue={values.responseHeader} />
+      </Form.Item>
+    </DrawerForm>
   );
 };
 export default UpdateModal;
