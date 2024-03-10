@@ -27,6 +27,12 @@ export default [
         component: './Admin/InterfaceInfo',
       },
       {
+        name: '用户管理',
+        icon: 'table',
+        path: '/admin/user',
+        component: './Admin/UserInfo',
+      },
+      {
         name: '接口分析',
         icon: 'table',
         path: '/admin/analysis',
